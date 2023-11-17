@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="kr.co.thesis.mapper.HistoryMapper">
+
+	<select id="selectHistoryTotalPrice" resultType="HistoryModel">
+		select type, sum(price) as price
+			from (
+				select start,
+				         type,
+				         sum(price) as price
+				    from
+		  				(
+						  select start, 
+						         type,
+						         sum(price) as price
+						    from 
+		  						(
+								  select replace(substring(deal_date,1,10),'.','-') as start,
+								         case when deal_method like '%입금%' then '입금'
+								         	  when deal_method like '%출금%' then '출금'
+								         	  end as type,
+								         deal_price as price
+								  from account_history
+								  where user_no = ${userNo}
+								    and del_yn = 'N'
+								  ) a
+								  group by start, type
+		  				  union
+						  select start,
+						         type,
+						         sum(price) as price
+						    from
+							    (
+							     select substring(approval_date,1,10) as start,
+							            case when payment_status = '승인' then '출금'
+							                 when payment_status = '승인취소' then '입금'
+							                 end as type,
+					                    use_price as price
+							       from card_history ch 
+							      where user_no = ${userNo}
+							        and del_yn = 'N'
+							    ) b
+								group by start, type
+				) c
+				group by start, type
+			) d
+			group by type
+	</select>
+
+	<select id="selectHistoryList" resultType="HistoryModel">
+		select start,
+         case when type = '입금' then concat('+', format(price,0), '원')
+              when type = '출금' then concat('-', format(price,0), '원')
+              end as title,
+  		 case when type = '입금' then 'blue'
+              when type = '출금' then 'red'
+              end as color,
+         concat('/detail/', start) as url
+    from
+  		(
+		  select start,
+		         type,
+		         sum(price) as price
+		    from
+  				(
+				  select start, 
+				         type,
+				         sum(price) as price
+				    from 
+  						(
+						  select replace(substring(deal_date,1,10),'.','-') as start,
+						         case when deal_method like '%입금%' then '입금'
+						         	  when deal_method like '%출금%' then '출금'
+						         	  end as type,
+						         deal_price as price
+						  from account_history
+						  where user_no = ${userNo}
+						    and del_yn = 'N'
+						  ) a
+						  group by start, type
+  					union
+						  select start,
+						         type,
+						         sum(price) as price
+						    from
+							    (
+							     select substring(approval_date,1,10) as start,
+							            case when payment_status = '승인' then '출금'
+							                 when payment_status = '승인취소' then '입금'
+							                 end as type,
+					                    use_price as price
+							       from card_history ch 
+							      where user_no = ${userNo}
+							        and del_yn = 'N'
+							    ) b
+   								group by start, type
+				) c
+   				group by start, type
+		) d
+	</select>
+	
+	<select id="selectRankPrice" resultType="RankModel">
+		select use_name, sum(price) as price from (
+		 	 select a.product_name,
+			 	    ah.deal_method as detail_type,
+			 	    ah.summary as use_name,
+			 	    ah.deal_price as price
+			   from account a, account_history ah
+			  where a.account_no = ah.account_no
+			    and a.user_no = ${userNo}
+			    and ah.deal_method = '출금'
+			    and a.del_yn = 'N'
+			  union all		 
+		     select c.card_product_name as product_name,
+		    	    ch.payment_status as detail_type,
+		    	    ch.franchisee_name as use_name,
+		    	    ch.use_price as price
+		       from card c, card_history ch
+		      where c.card_no = ch.card_no 
+		        and c.user_no = ${userNo}
+		        and ch.payment_status = '승인'
+		        and c.del_yn = 'N'
+	        ) a
+	        group by use_name
+	        order by price desc
+	        limit 0,3
+	</select>
+	
+	<select id="selectRankHistory" resultType="RankModel">
+		select use_name, count(use_name) as cnt from (
+		 	 select a.product_name,
+			 	    ah.deal_method as detail_type,
+			 	    ah.summary as use_name,
+			 	    ah.deal_price as price
+			   from account a, account_history ah
+			  where a.account_no = ah.account_no
+			    and a.user_no = ${userNo}
+			    and ah.deal_method = '출금'
+			    and a.del_yn = 'N'
+			  union all		 
+		     select c.card_product_name as product_name,
+		    	    ch.payment_status as detail_type,
+		    	    ch.franchisee_name as use_name,
+		    	    ch.use_price as price
+		       from card c, card_history ch
+		      where c.card_no = ch.card_no 
+		        and c.user_no = ${userNo}
+		        and ch.payment_status = '승인'
+		        and c.del_yn = 'N'
+	        ) a
+	        group by use_name
+	        order by cnt desc
+	        limit 0,3
+	</select>
+	
+</mapper>

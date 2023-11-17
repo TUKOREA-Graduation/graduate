@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<script src="/webjars/jquery/3.6.0/jquery.min.js"></script>
+
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+	<title>논문</title>
+	<meta content="" name="description">
+	<meta content="" name="keywords">
+	
+	<link href="https://fonts.googleapis.com/css?family=Black Han Sans:400" rel="stylesheet">
+ 	
+ 	<link href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	
+	<link href="/assets/css/style.css?after" rel="stylesheet">
+</head>
+
+<script>
+	$(function(){
+		$('#loginBtn').click(function(e){
+			var form = $('#login-form');
+			
+			var userId = $('#userId').val();
+			var userPwd = $('#userPwd').val();
+			
+			if(userId == ''){
+				alert('아이디를 입력하세요.');
+				$('#userId').focus();
+				return false;
+			}
+			
+			if(userPwd == ''){
+				alert('비밀번호를 입력하세요.');
+				$('#userPwd').focus();
+				return false;
+			}
+			
+			form.attr('method', 'post');
+			form.attr('action', '/login');
+			form.submit();
+		});
+	})
+</script>
+
+
+<body class="loginpage">
+	
+	<main>
+		<div class="container">
+	
+			<section>
+				<div class="container main-div"> 
+					<div class="row center-div">
+						
+						<div class="col-6 b-box">
+							<!-- Pie Chart -->
+							<div id="pieChart" style="min-height: 500px;" class="echart"></div>
+				
+							<script>
+								document.addEventListener("DOMContentLoaded", () => {
+									echarts.init(document.querySelector("#pieChart")).setOption({
+										title: {
+											text: 'Asset Management System',
+											subtext: 'Data By Category',
+											left: 'center',
+											textStyle:{
+												color:'white'
+											},
+											subtextStyle:{
+												color:'white'
+											}
+										},
+										tooltip: {
+											trigger: 'item'
+										},
+										legend: {
+											orient: 'vertical',
+											left: 'left',
+											top: '30px',
+											textStyle:{
+												color: 'white'
+											}
+										},
+										series: [{
+											name: 'category',
+											type: 'pie',
+											radius: '50%',
+											top: '100px',
+											label:{
+												color: 'white'
+											},
+											labelLine:{
+												length: 50
+											},
+											tooltip: {
+												valueFormatter: (value) => value + '%'
+											},
+											data: [{
+												value: 32.6,
+												name: '기타'
+											},
+											{
+												value: 13.7,
+												name: '쇼핑'
+											},
+											{
+												value: 13.1,
+												name: '이체'
+											},
+											{
+												value: 12.0,
+												name: '취미·여가'
+											},
+											{
+												value: 28.6,
+												name: '그 외 6개'
+											}
+											],
+											emphasis: {
+												itemStyle: {
+													shadowBlur: 10,
+													shadowOffsetX: 0,
+													shadowColor: 'rgba(0, 0, 0, 0.5)'
+												}
+											},
+											animation: true,
+											animationDuration: function (idx) {
+												// delay for later data is larger
+												return idx * 2000;
+											}
+										}]
+									});
+								});
+							</script>
+							<!-- End Pie Chart -->
+							
+						</div>
+						
+						<div class="col-6 b-box">
+						
+							<div class="pt-4 pb-2">
+								<h1 style="color:whitesmoke;">AMS</h1>
+								<h5 class="text-center", style="color:white">로그인</h5>
+								<p class="text-center", style="color:white">아이디와 비밀번호 입력 후 로그인 버튼을 누르세요</p>
+							</div>
+		
+							<form id="login-form">
+								
+								<input type="hidden" id="signUpYn" name="signUpYn" th:value="${signUpYn}">
+								
+								<div class="col-12">
+									<label for="userId" class="form-label", style="color:white">아이디</label>
+									<input type="text" name="userId" id="userId" class="form-control">
+								</div>
+
+								<div class="col-12 pt-20">
+									<label for="userPwd" class="form-label", style="color:white">비밀번호</label>
+									<input type="password" name="userPwd"  id="userPwd" class="form-control">
+								</div>
+								
+								<div class="col-12 text-center apt-20">
+									<span th:if="${#request.getAttribute('errorMsg') != null}" th:text="${#request.getAttribute('errorMsg')}" style="color:red;"></span>
+									<button class="btn btn-primary form-control" type="submit" id="loginBtn">로그인</button>
+								</div>
+								
+								<div class="col-12">
+									<p class="mb-0", style="color:white">계정이 없으신가요? <a href="/signUpForm" style="color:rgb(132, 196, 255); font-weight:bold;">계정 생성하기</a></p>
+								</div>
+							</form>
+	
+						</div>
+					</div>
+				</div>
+	
+			</section>
+	
+		</div>
+	</main><!-- End #main -->
+	
+	<script src="/assets/vendor/echarts/echarts.min.js"></script>
+
+</body>
+
+</html>

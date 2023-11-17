@@ -1,0 +1,519 @@
+
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<script src="/webjars/jquery/3.6.0/jquery.min.js"></script>
+<script src="/dist/index.global.js"></script>
+<script src="/dist/locale-all.js"></script>
+<script src="/assets/vendor/echarts/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1"></script>
+
+<!-- Latest compiled and minified CSS 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+-->
+
+<script th:inline="javascript">
+	/*<![CDATA[*/
+    var historyList = /*[[${historyList}]]*/ 'default';
+	/*]]>*/
+  
+	var arr = new Array();
+	
+	for(var i=0; i<historyList.length; i++){
+	  	arr.push(historyList[i]);
+  	}
+  	
+  	console.log(arr);
+</script>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <title>논문</title>
+
+  <link href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/nstyle.css?after">
+  <link href="/assets/css/style.css?after" rel="stylesheet">
+  
+</head>
+
+<script>/*Jquery스크립트, 계좌, 카드에 대한 파일을 업로드하고 삭제할 수 있는 기능, 이벤트를 표시하는 캘린더 기능도 포함*/
+	$(function(){
+		
+		var uploadYn = $('#uploadYn').val();//uploadYn이 참인지 확인
+		var delYn = $('#delYn').val();//delYn이 참인지 확인
+		
+		if(uploadYn) {//uploadYn이 참이면 '업로드 완료' 알림 메시지 표시
+			alert('업로드 완료');
+		}
+		
+		if(delYn) {//delYn이 참이면 메시지 표시
+			alert('삭제 완료');
+		}
+		
+		$('.logout').click(function(){//.logout 클래스를 가진 로그아웃 버튼을 클릭하면
+			location.href="/logout";// /logout페이지로 리디렉션
+		});
+		
+		$(document).on('click', '#accountBtn', function(){//사용자가 #account Btn을 클릭하면
+			
+			var form = $('#register-form');
+			
+			if (!$('#excelAccount').val()) {//스크립트는 #excelAccount의 값이 비어있는지 확인
+				alert('계좌용 파일을 업로드 하세요.');//비어있으면 알림메세지 표시
+				$('#excelAccount').focus();//#excelAccount에 포커스가 설정된다.
+				return false;
+			}
+			
+			form.attr('action', '/excel/account');//비어있지 않으면 id가 #register-form인 폼의 action속성이 /excel/card로 설정되고 제출
+			form.submit();//제출
+		});
+		
+		$(document).on('click', '#cardBtn', function(){//#cardBtn을 클릭하면
+			
+			var form = $('#register-form');
+			
+			if (!$('#excelCard').val()) {//#excelCard의 값이 비어 있는지 확인
+				alert('카드용 파일을 업로드 하세요.');//비어있으면 알림메시지 표시
+				$('#excelCard').focus();//excelCard에 포커스 설정
+				return false;
+			}
+			//비어있지 않으면
+			form.attr('action', '/excel/card');//id가 #register-form인 폼의 action 속성이 /excel/card로 설정됨
+			form.submit();//제출
+		});
+		
+		$(document).on('click', '#accountDelBtn', function(){//사용자가 #accountDelBtn을 클릭하면
+			
+			var form = $('#register-form');//id가 #register-form인 폼의 
+			
+			form.attr('action', '/delete/account');//action 속성이 /delete/account로 설정되고 
+			form.submit();//제출
+		});
+		
+		$(document).on('click', '#cardDelBtn', function(){//사용자가 #cardDelBtn을 클릭하면
+			
+			var form = $('#register-form');//id가 #register-form인 폼의
+			
+			form.attr('action', '/delete/card');//action 속성이 /delete/card로 설정되고
+			form.submit();//제출
+		});
+	})
+	
+	//캘린더: 문서가 로드되었을 때 실행됨
+	document.addEventListener('DOMContentLoaded', function () {
+		var calendarEl = document.getElementById('calendar');//calendarEl 변수는 calendar라는 id를 가진 요소를 참조한다.
+
+		var now = new Date();//now변수는 현재 날짜와 시간을 나타내는 Date객체
+
+		//year, month, day 변수는 각각 현재 연도, 월, 일을 나타낸다.
+		var year = now.getFullYear();
+		var month = now.getMonth() + 1;
+		var day = now.getDate();
+
+		if (month < 10) {
+			month = "0" + month;
+		}//만약 월이 10보다 작으면 앞에 '0'을 추가한다(01,02,03...)
+		
+		if (day < 10) {
+			day = "0" + day;
+		}
+		
+		var dates = document.getElementById('dates').value;//dates변수는 dates라는 id를 가진 요소의 값을 참조
+		
+		var today = year + "-" + month + "-" + day;//today 변수는 현재 날짜를 나타내며 연도-월-일 형식으로 표시된다. 
+		
+		if(dates != ''){//만약 dates의 값이 비어있지 않으면 today의 값은 dates의 값으로 설정
+			today = dates;
+		}
+		
+		var beforeNow = new Date(now.setDate(now.getDate() - 1));//beforeNow 변수는 현재 날짜에서 하루 전 날짜와 시간을 나타내는 Date 객체
+
+		//beforeYear, beforeMonth, beforeDay 변수는 각각 하루 전 연도, 월, 일을 나타낸다. 만약 월이 10보다 작으면 앞에 '0' 추가
+		var beforeYear = beforeNow.getFullYear();
+		var beforeMonth = beforeNow.getMonth() + 1;
+		var beforeDay = beforeNow.getDate();
+
+		if (beforeMonth < 10) {
+			beforeMonth = "0" + beforeMonth;
+		}
+
+		var yesterday = beforeYear + "-" + beforeMonth + "-" + beforeDay;//yesterday 변수는 하루 전 날짜를 나타내며 연도-월-일 형식으로 표시
+
+		//FullCalendar는 자바스크립트 기반의 오픈소스 라이브러리
+		//캘린더 객체 생성하고 렌더링
+		var calendar = new FullCalendar.Calendar(calendarEl, {
+			headerToolbar: {//캘린더의 헤더 툴바에 이전/다음 버튼, 오늘 버튼, 제목, 다중 월 년도뷰/월 뷰/ 주 뷰 전환 버튼이 포함
+				left: 'prev,next today',
+				center: 'title',
+				right: 'multiMonthYear,dayGridMonth,timeGridWeek'
+			},
+			locale: "ko",
+			initialView: 'dayGridMonth',//캘린더의 초기 뷰는 month월 뷰로 설정
+			initialDate: today,//초기 날짜는 today 변수의 값으로 설정
+			editable: true,
+			selectable: true,
+			dayMaxEvents: true, // allow "more" link when too many events
+			// multiMonthMaxColumns: 1, // guarantee single column
+			// showNonCurrentDates: true,
+			// fixedWeekCount: false,
+			// businessHours: true,
+			// weekends: false,
+			events: arr,//캘린더의 이벤트들은 arr 배열에서 가져온다
+			eventOrder: 'sortIdx'
+		});
+		calendar.render();
+	});
+	//go_page(page)함수
+	function go_page(page) {
+		$('#page').val(page);//#page의 값을 지정된 페이지 번호로 설정하고
+		search();// search() 함수를 호출
+	}
+	    //search()함수
+	function search() {
+		var form = $('#register-form');//id가 #register-form인 폼의 
+		
+		form.attr('method', 'get');//method 속성을 'get'으로 설정
+		form.attr('action', '/');//action 속성을 '/'으로 설정
+		form.submit();//제출
+	}
+</script>
+
+<body>
+  <!-- 헤더_로고랑 유저이름 -->
+  <div class="background">
+    <header class="logo">
+      <div class="header_user">
+        <h3>
+          <!-- **로그인 유저이름 만드는 곳 -->
+          <!-- <span th:text="${member.userName}"></span>님 -->
+          <span th:text="${member.userName}"></span> 님
+        </h3>
+        <button type="button" class="btn btn-outline-light btn-sm btn-block">로그아웃</button>
+      </div>
+      <div class="logoset">
+        <h1>AMS</h1>
+        <p>Asset Management System</p>
+      </div>
+    </header>
+  
+    <main>
+      <form method="POST" id="register-form" enctype="multipart/form-data">
+        <!-- 사용자 입력을 위한 양식을 나타냄. 이 양식은 POST방식으로 전송되면, multipart/form-data 인코딩 유형을 사용 -->
+        <input type="hidden" id="uploadYn" name="uploadYn" th:value=${uploadYn}>
+        <input type="hidden" id="delYn" name="delYn" th:value=${delYn}>
+        <input type="hidden" id="dates" name="dates" th:value="${dates}">
+        <input type="hidden" id="page" name="page">
+        <!-- 사용자에게 표시되지 않는 숨겨진 입력 필드를 나타낸다. 이 문서에서는 uploadYn, delYn, dates, page 라는 이름의 숨겨진 입력 필드가 있다. -->
+        <div class="container">
+          <div class="data">
+            <div class="data_upload">
+              <div class="upload_bank">
+                <p>계좌</p>
+                <input type="file" id="excelAccount" name="excelAccount">
+                  <!-- 파일 선택을 위한 입력 필드, 이 문서에서는 excelAccount 및 excelCard라는 이름의 파일 선택 필드가 있다.(파일 선택 계좌) -->
+                  <button type="button" class="btn btn-dark" id="accountBtn">계좌 등록</button>
+                  <!-- 계좌 등록버튼 -->
+                  <button type="button" class="btn btn-danger" id="accountDelBtn">계좌 삭제</button>
+                  <!-- 계좌 삭제버튼 -->
+              </div>
+              <div class="upload_card">
+                <p>카드</p>
+                <input type="file" id="excelCard" name="excelCard">
+                <!-- 파일 선택 카드 -->
+                <button type="button" class="btn btn-dark" id="cardBtn">카드 등록</button>
+                <!-- 카드 등록 버튼 -->
+                <button type="button" class="btn btn-danger" id="cardDelBtn">카드 삭제</button>
+                <!-- 카드 삭제 버튼 -->
+              </div>
+            </div>
+            <th:block th:each="account : ${account}">
+              <!-- th:block은 Thymeleaf 템플릿 엔진의 블록 태그이다. 이 태그는 반복적인 콘텐츠를 생성하는 데 사용된다. 이 문서에서는 계좌 정보를 표시하는 데 사용된다. -->
+              <div class="data_info">
+                <div>
+                  <span>계좌번호 : </span>
+                  <!-- span은 인라인 요소를 나타낸다. 이 문서에서는 계좌 정보와 사용자 정보를 표시하는 데 사용된다. -->
+                  <span th:text="${account.accountNumber}"></span>
+                </div>
+                <div>
+                  <span>상품명 : </span>
+                  <span th:text="${account.agencyName}"></span>
+                </div>
+                <div>
+                  <span>현재잔액 : </span>
+                  <span th:text="${#numbers.formatInteger(account.remainPrice, 0, 'COMMA') + '원'}"></span>
+                </div>
+                <div>
+                  <span>출금가능액 : </span>
+                  <span th:text="${#numbers.formatInteger(account.availablePrice, 0, 'COMMA') + '원'}"></span>
+                </div>
+              </div>
+            </th:block>
+
+  
+          </div>
+          <div class="total_asset">
+            <h2>
+              총 입금 : <span th:text="${#numbers.formatInteger(totalPlus, 0, 'COMMA') + '원'}"></span>
+            </h2>
+            <h2>
+              총 출금 : <span th:text="${#numbers.formatInteger(totalMinus, 0, 'COMMA') + '원'}"></span>
+            </h2>
+            <h2>
+              총 자산 : <span th:text="${#numbers.formatInteger(totalPrice, 0, 'COMMA') + '원'}"></span>
+            </h2>
+          </div>
+         
+		<style>
+			ul.tabs{
+				margin: 0px;
+				padding: 0px;
+				list-style:none;
+			}
+			ul.tabs li{
+				background:none;
+				color:rgb(78, 78, 78);
+				display: inline-block;
+				padding:10px 15px;
+				cursor: pointer;
+			}
+			
+			ul.tabs li.current{
+				background:rgb(78, 78, 78);
+				color: rgb(255, 255, 255);
+			}
+			.tab-content{
+				display:none;
+				background:rgb(78, 78, 78);
+				padding: 15px;
+			}
+			.tab-content.current{
+				display: inherit;
+			}
+			#tab-2{
+				display: none;
+				flex-direction: column;
+				align-items: center;
+			}
+			@font-face{
+				font-family: 'pretend';
+				src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+				font-weight: 400;
+				font-style: normal;
+			}
+		</style>
+		<div class="col-12" style="font-family: pretend;">
+			<ul class="tabs">
+				<li class="tab-link current" data-tab="tab-1">소비</li>
+				<li class="tab-link" data-tab="tab-2">분석</li>
+			</ul>
+			<div id="tab-1" class="tab-content current">
+				<div class="row">
+					<div class="col-12">
+						<div id="calendar"></div>
+					</div>
+				</div>
+			</div>
+			<div id="tab-2" class="tab-content" style="font-size: 20px;">
+				<div>
+					<button type="button" id="maleButton" value="male" style="font-size: 16px; padding: 8px 16px; cursor: pointer; color: black;">남성</button>
+					<button type="button" id="femaleButton" value="female" style="font-size: 16px; padding: 8px 16px; cursor: pointer; color: black;">여성</button>
+				</div>
+				<select id="ageButton" style="font-size: 16px; padding:4px 8px; color: black;">
+					<option value="10s"style="color:black;">10대</option>
+					<option value="20s"style="color:black;">20대</option>
+					<option value="30s"style="color:black;">30대</option>
+					<option value="40s"style="color:black;">40대</option>
+					<option value="50s"style="color:black;">50대</option>
+					<option value="60s"style="color:black;">60대</option>
+					<option value="70s"style="color:black;">70대 이상</option>
+				</select>
+				
+				<div id="avgAssetValueBox" style="padding:10px;"></div>
+				
+				<script>
+					let selectedGender='male';
+					let selectedAge='10s';
+					
+					document.getElementById('maleButton').addEventListener('click',function(event){
+						let gender=event.target.value;
+						updateChart(gender,selectedAge);
+						maleButton.style.backgroundColor = 'lightblue';
+						femaleButton.style.backgroundColor = '';
+					});
+					
+					document.getElementById('femaleButton').addEventListener('click',function(event){
+						let gender=event.target.value;
+						updateChart(gender,selectedAge);
+						femaleButton.style.backgroundColor = 'lightblue';
+						maleButton.style.backgroundColor = '';
+					});
+					
+					document.getElementById('ageButton').addEventListener('click',function(event){
+						let age=event.target.value;
+						updateChart(selectedGender,age);
+					})
+					
+					function updateChart(gender,age){
+						selectedGender=gender;
+						selectedAge=age;
+						
+						let avgAssetValue=getavgAssetValue(gender,age);
+						
+						barChart.options.plugins.annotation.annotations.line1.xMin=avgAssetValue;
+						barChart.options.plugins.annotation.annotations.line1.xMax=avgAssetValue;
+						barChart.update();
+						
+						document.getElementById('avgAssetValueBox').innerHTML = `평균자산값: ${avgAssetValue}`;
+					}
+					
+					
+					<!--성별 나이별 평균자산값 저장-->
+					
+					let avgAssetValue={
+						'male':{
+							'10s':2347325,
+							'20s':1845308,
+							'30s':1301722,
+							'40s':785363,
+							'50s':1190316,
+							'60s':689778,
+							'70s':530770,
+						},
+						'female':{
+							'10s':2996049,
+							'20s':624847,
+							'30s':585785,
+							'40s':756972,
+							'50s':401843,
+							'60s':401843,
+							'70s':421189,
+						}
+					};
+					function getavgAssetValue(gender, age){
+						return avgAssetValue[gender][age];
+					}
+				</script>
+				<div class="chart-container" style="position:relative; height:20vh; width: 60vw;padding: 0; margin: 5vh;text-align: center;">
+					<p><사용자 성별, 나이별 평균 자산></p>
+					<canvas id="myChartOne" style="border: 1px solid white;padding: 8px;background-color: rgb(179, 198, 242);"></canvas>
+				</div>
+				<div class="totalAmountRank" style=" display: flex; flex-direction: column; align-items: center; margin:5vh;">
+					<div class="ARtitle" style="padding: 5px;"><최다 금액 소비내역 순위></div>
+					<ul class="amountR" style="list-style: none; padding: 0; margin: 0;border:1px solid white;">
+						<li class="rank1" style="width:40vw;height: 15vh;border: 1px solid white;margin: 10px;display: flex;justify-content: center;align-items: center;">
+							<span th:if="${#lists.size(rankPrice) > 0}" th:text="${rankPrice[0].useName + ' : ' + #numbers.formatInteger(rankPrice[0].price, 0, 'COMMA') + '원'}"></span>
+						</li>
+						<li class="rank2" style="width:40vw;height: 15vh;border: 1px solid white;margin: 10px;display: flex;justify-content: center;align-items: center;">
+							<span th:if="${#lists.size(rankPrice) > 1}" th:text="${rankPrice[1].useName + ' : ' + #numbers.formatInteger(rankPrice[1].price, 0, 'COMMA') + '원'}"></span>
+						</li>
+						<li class="rank3" style="width:40vw;height: 15vh;border: 1px solid white;margin: 10px;display: flex;justify-content: center;align-items: center;">
+							<span th:if="${#lists.size(rankPrice) > 2}" th:text="${rankPrice[2].useName + ' : ' + #numbers.formatInteger(rankPrice[2].price, 0, 'COMMA') + '원'}"></span>
+						</li>
+					</ul>
+				</div>	
+				<div class="frequencyRank" style=" display: flex; flex-direction: column; align-items: center; margin:5vh;">
+					<div class="FRtitle" style="padding: 5px;"><최다 빈도 소비내역 순위></div>
+					<ul class="frequencyR" style="list-style: none; padding: 0; margin: 0;border:1px solid white;">
+						<li class="rank1" style="width:40vw;height: 15vh;border: 1px solid white;margin: 10px;display: flex;justify-content: center;align-items: center;">
+							<span th:if="${#lists.size(rankHistory) > 0}" th:text="${rankHistory[0].useName + ' : ' + rankHistory[0].cnt + '번'}"></span>
+						</li>
+						<li class="rank2" style="width:40vw;height: 15vh;border: 1px solid white;margin: 10px;display: flex;justify-content: center;align-items: center;">
+							<span th:if="${#lists.size(rankHistory) > 1}" th:text="${rankHistory[1].useName + ' : ' + rankHistory[1].cnt + '번'}"></span>
+						</li>
+						<li class="rank3" style="width:40vw;height: 15vh;border: 1px solid white;margin: 10px;display: flex;justify-content: center;align-items: center;">
+							<span th:if="${#lists.size(rankHistory) > 2}" th:text="${rankHistory[2].useName + ' : ' + rankHistory[2].cnt + '번'}"></span>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<script>
+			$(document).ready(function(){
+				$('ul.tabs li').click(function(){
+					var tab_id=$(this).attr('data-tab');
+					
+					$('ul.tabs li').removeClass('current');
+					$('.tab-content').removeClass('current');
+					
+					$(this).addClass('current');
+					$("#"+tab_id).addClass('current');
+					
+					if(tab_id==='tab-2'){
+						$('#tab-2').css('display','flex');
+					}else{
+						$('#tab-2').css('display','none');
+					}
+				});
+			});
+		</script>
+        </div>
+        
+       	<script th:inline="javascript">
+			Chart.defaults.font.family = 'pretend';   
+			   
+		   	let totalPrice=[[${totalPrice}]];
+		   	let myChartOne=document.getElementById('myChartOne').getContext('2d');
+		   	let barChart=new Chart(myChartOne, {
+			   	type:'bar',
+			   	data:{
+				   	labels:['사용자'],
+				   	datasets:[{
+					   	label:'총자산',
+					   	data:[totalPrice],
+					   	color:'yellow'
+				   	}]
+			   	},
+			   	backgroundcolor:['white'],
+			   	borderwidth:5,
+			   	options:{
+				   	indexAxis:'y',
+				   	responsive: true,
+				   	maintainAspectRatio:false,
+				   	plugins:{
+						   annotationLabel:{
+							   id:'annotationLabel',
+							   beforeDraw:function(chart,args,options){
+								   let ctx=chart.ctx;
+								   let scale=chart.scales.y;
+								   let pixel=scale.getPixelForValue(10000);
+								   ctx.save();
+								   ctx.fillStyle='black';
+								   ctx.fillText('평균값',10,pixel-10);
+								   ctx.restore();
+							   }
+						   },
+					   	legend:{
+						   	font:{
+							   	size:50,
+							   	family:'pretend'
+						   	},
+						   	color:'black'
+					   	},
+					   	annotation:{
+						   	annotations:{
+							   	line1:{
+								   	type:'line',
+								   	xMin:10000,
+								   	xMax:10000,
+								   	borderColor:'white',
+								   	borderwidth:2
+							   	}
+						   	}
+					   	}
+				   	}
+			   	},
+			   	plugins:[{
+					   id:'annotationLabel'
+				   }]
+		   	})
+	   	</script>
+      </form>
+    </main>
+  </div>
+  
+</body>
+</html>

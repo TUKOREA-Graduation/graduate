@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<script src="/webjars/jquery/3.6.0/jquery.min.js"></script>
+<script src="/dist/index.global.js"></script>
+
+<script th:inline="javascript">
+	/*<![CDATA[*/
+    var accountList = /*[[${accountList}]]*/ 'default';
+    var cardList = /*[[${cardList}]]*/ 'default';
+	/*]]>*/
+  
+	var arr = new Array();
+	
+	for(var i=0; i<accountList.length; i++){
+	  	arr.push(accountList[i]);
+  	}
+  	
+  	for(var i=0; i<cardList.length; i++){
+	  	arr.push(cardList[i]);
+  	}
+</script>
+
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+	<title>논문</title>
+	<meta content="" name="description">
+	<meta content="" name="keywords">
+
+	<link href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	
+	<link href="/assets/css/style.css" rel="stylesheet">
+
+</head>
+
+<script>
+	$(function(){
+		$('.back').click(function(){
+			var form = $('#list-form');
+		
+			form.attr('action', '/');
+			form.submit();
+		});	
+	})
+
+	function go_page(page) {
+		$('#page').val(page);
+		search();
+	}
+	    
+	function search() {
+		var form = $('#list-form');
+		
+		var dates = $('#dates').val();
+				
+		form.attr('action', '/detail/' + dates);
+		form.submit();
+	}
+</script>
+
+<body>
+
+	<main>
+		
+		<form method="GET" id="list-form">
+			
+			<input type="hidden" id="page" name="page" value="" />
+			<input type="hidden" id="dates" name="dates" th:value="${dates}" />
+			
+			<div class="container main-div">
+			
+				<div class="row">
+				
+					<div class="col-12 text-center">
+						<h1 th:text="${dates + ' 이용내역'}"></h1>
+					</div>
+					
+					<div class="col-12">
+						<table class="table all-tb">
+							<thead>
+								<tr>
+									<th>번호</th>
+									<th>결제방식</th>
+									<th>결제유형</th>
+									<th>이용내역</th>
+									<th>이용금액</th>
+									<th>이용날짜</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:if="${#lists.isEmpty(detailList)}">
+					   				<td class="text-center" colspan="6">데이터가 없습니다.</td>
+					   			</tr>
+								<tr th:if="${#lists.size(detailList)}" 
+									th:each ="detailList, stat : ${detailList}"
+									class="trdata">
+									<td th:text="${paging?.totalCnt - ((paging?.curPageNo-1) * paging?.rowCnt) - stat.index}"><!-- 순번 --></td>
+									<td th:text="${detailList?.productName}"></td>
+									<td th:text="${detailList?.detailType}" th:classappend="${#strings.contains(detailList?.detailType,'입금') ? 't-blue' : #strings.contains(detailList?.detailType,'승인취소') ? 't-blue' : 't-red'}"></td>
+									<td th:text="${detailList?.useName}"></td>
+									<td th:text="${#numbers.formatInteger(detailList.price, 0, 'COMMA') + '원'}" th:classappend="${#strings.contains(detailList?.detailType,'입금') ? 't-blue' : #strings.contains(detailList?.detailType,'승인취소') ? 't-blue' : 't-red'}"></td>
+									<td th:text="${detailList?.useDate}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+				<div class="d-flex justify-content-center">
+					<th:block th:utext="${paging.mkPageing()}">
+						<!-- paging -->
+					</th:block>
+				</div>
+				
+				<div>
+					<button type="button" class="btn btn-dark back">달력보기</button>
+				</div>
+				
+			</div>
+			
+		</form>
+		
+	</main><!-- End #main -->
+
+</body>
+
+</html>

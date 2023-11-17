@@ -1,0 +1,126 @@
+/* 
+*{
+  margin:0;
+  padding: 0;
+  box-sizing: border-box;
+} */
+@font-face {
+  font-family: 'absterregular';
+  src: url('abster-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+
+}
+.loginpage{
+    background-color: gray;
+    background: linear-gradient(rgba(0, 0, 0, 0.719),rgba(0, 0, 0, 0.719)),url(/assets/css/image/loginbackground.jpg);
+}
+
+.main-div {
+  max-width: 2000px!important;
+}
+/* 최대 너비를 1000px로 설정, !important로 다른 스타일 무시 */
+
+.center-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+}
+/* flex 디스플레이를 사용하여 내용을 수평과 수직으로 가운데 정렬하고 최소 높이를 100vh로 설정 */
+
+.excel-div h1 {
+  font-size: 24px;
+  margin: 0px !important;
+}
+/* h1태그의 글꼴 크기를 24px로 설정하고 margin을 0px로 설정 */
+
+.f-left {
+  float: left;
+}
+/* 요소를 왼쪽으로 띄움 */
+
+.f-right {
+  float: right;
+  text-align: right;
+}
+/* 요소를 오른쪽으로 띄우고 텍스트 정렬을 오른쪽으로 설정 */
+
+.b-box {
+  border: 1px solid #ffffff;
+  padding: 25px;
+  height: 500px;
+}
+/* 테두리와 패딩을 추가하고 높이를 500px로 설정 */
+
+.b-box h1 {
+  font-family: 'Black Han Sans';
+  text-align: center;
+}
+/* h1태그의 글꼴을 'Black Han Sans'으로 설정하고 텍스트 정렬을 가운데로 설정 */
+
+.b-box2 {
+  border: 1px solid #6666;
+  padding: 25px;	
+}
+/* 테두리와 패딩을 추가 */
+
+.apt-20 {
+  padding: 20px 0;	
+}
+/* 위아래 패딩을 20px로 설정 */
+
+.pt-20 {
+  padding-top: 20px;
+}
+/* 위쪽 패딩만 20px로 설정 */
+
+.access-btn {
+  display: flex;
+  align-items: end;	
+}
+/* flex디스플레이를 사용하여 내용을 아래쪽에 정렬 */
+
+.excel-div {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;	
+}
+/* 텍스트 정렬을 가운데로 하고 수직 정렬도 가운데로 함 */
+
+.all-tb {
+  text-align: center;
+  vertical-align: center;
+}
+/* 텍스트 정렬을 가운데로 하고 수직 정렬도 가운데로 함 */
+
+.main-div {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  justify-content: center;	
+}
+/* flex디스플레이를 사용하여 내용을 수직으로 가운데 정렬하고 방향을 열(column)으로 설정하며 최소 높이를 100vh로 하고 내용을 수직으로 가운데 정렬한다. */
+
+.t-red {
+  color: red;
+}
+/* 글자색을 빨간색으로 설정 */
+
+.t-blue {
+  color: blue;
+}
+/* 글자색을 파란색으로 설정 */
+
+.fc-h-event .fc-event-title {
+  float: right;
+}
+/* 부모 요소가 .fc-h-event인 경우에만 적용되며 요소를 오른쪽으로 띄운다. */
+
+.fc .fc-toolbar.fc-header-toolbar {
+  padding-top: 0px;
+}
+/* 클래스는 부모 요소가 .fc인 경우에만 적용되며 위쪽 패딩을 100px로 설정합니다 */

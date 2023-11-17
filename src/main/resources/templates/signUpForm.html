@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<script src="/webjars/jquery/3.6.0/jquery.min.js"></script>
+
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+	<title>논문</title>
+	<meta content="" name="description">
+	<meta content="" name="keywords">
+
+	<link href="/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	
+	<link href="/assets/css/style.css" rel="stylesheet">
+
+</head>
+
+<script>
+	$(function(){
+		
+		$('#accessBtn').click(function(){
+			
+			var userEmail = $('#userEmail').val();
+			
+			var params = {
+				userEmail : userEmail
+			}
+			
+			$.ajax({
+		    	type: "POST",           
+		        url: "/send/email",      
+		        data: params,            
+		        success: function(res){
+					alert('인증번호를 발송했습니다.');
+					$('#ajaxAccessNo').val(res);
+		        }
+			});
+			
+		});
+		
+		$('#accessOkBtn').click(function(){
+			
+			var accessNo = $('#accessNo').val();
+			var ajaxAccessNo = $('#ajaxAccessNo').val();
+			
+			if(accessNo == ajaxAccessNo){
+				alert('인증이 완료되었습니다.');
+				$('#authYn').val(true);
+			} else {
+				alert('올바르지 않은 인증번호입니다.');
+				return false;
+			}
+		})
+		
+		$('#signUpBtn').click(function(e){
+			
+			var userName = $('#userName').val();
+			var userId = $('#userId').val();
+			var userPwd = $('#userPwd').val();
+			var reUserPwd = $('#reUserPwd').val();
+			var authYn = $('#authYn').val();
+			
+			if(userName == ''){
+				alert('이름을 입력하세요.');
+				$('#userName').focus();
+				return false;
+			}
+			
+			if(userId == ''){
+				alert('아이디를 입력하세요.');
+				$('#userId').focus();
+				return false;
+			}
+			
+			if(userPwd == ''){
+				alert('비밀번호를 입력하세요.');
+				$('#userPwd').focus();
+				return false;
+			}
+			
+			if(reUserPwd == ''){
+				alert('비밀번호 확인을 입력하세요.');
+				$('#reUserPwd').focus();
+				return false;
+			}
+			
+			if(userPwd != reUserPwd){
+				alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+				$('#userPwd').focus();
+				return false;
+			}
+			
+			if(!authYn) {
+				alert('이메일 인증을 완료하세요.');
+				return false;
+			}
+			
+			var params = {
+				userId : $('#userId').val(),
+				userPwd : $('#userPwd').val(),
+				userName : $('#userName').val(),
+				userEmail : $('#userEmail').val()
+			}
+			
+			$.ajax({
+		    	type : "POST",           
+		        url : "/signUp",      
+		        data : params,            
+		        success : function(res){
+					if(res == 'success'){
+						alert('회원 가입 완료');
+						location.href="/loginForm";
+					} else {
+						alert(res);
+						return false;
+					}
+		        }
+			});
+		});
+	})
+</script>
+
+<body>
+
+	<main>
+		<div class="container">
+	
+			<section>
+				<div class="container">
+					<div class="row center-div">
+						<div class="col-lg-6 col-md-6 b-box2">
+	
+							<div class="pt-4 pb-2">
+								<h5 class="text-center">회원가입</h5>
+								<p class="text-center">아래 항목들을 입력하고, 계정생성 버튼을 클릭하세요.</p>
+							</div>
+			
+							<div class="row">
+								
+								<input type="hidden" id="ajaxAccessNo" name="ajaxAccessNo">
+								<input type="hidden" id="authYn" name="authYn">
+								
+								<div class="col-12">
+									<label for="userName" class="form-label">이름</label>
+									<input type="text" name="userName" id="userName" class="form-control">
+								</div>
+	
+								<div class="col-12 pt-20">
+									<label for="userId" class="form-label">아이디</label>
+									<input type="text" name="userId" id="userId" class="form-control">
+								</div>
+								
+								<div class="col-8 pt-20">
+									<label for="userEmail" class="form-label">이메일</label>
+									<input type="text" name="userEmail" id="userEmail" class="form-control">
+								</div>
+								
+								<div class="col-4 pt-20 access-btn">
+									<button class="btn btn-success form-control" type="button" id="accessBtn">인증번호발송</button>
+								</div>
+								
+								<div class="col-8 pt-20">
+									<label for="accessNo" class="form-label">인증번호</label>
+									<input type="text" name="accessNo" id="accessNo" class="form-control">
+								</div>
+								
+								<div class="col-4 pt-20 access-btn">
+									<button class="btn btn-dark form-control" type="button" id="accessOkBtn">인증번호확인</button>
+								</div>
+	
+								<div class="col-12 pt-20">
+									<label for="userPwd" class="form-label">비밀번호</label>
+									<input type="password" name="userPwd" id="userPwd" class="form-control">
+								</div>
+								
+								<div class="col-12 pt-20">
+									<label for="reUserPwd" class="form-label">비밀번호 확인</label>
+									<input type="password" name="reUserPwd" id="reUserPwd" class="form-control">
+								</div>
+								
+								<div class="col-12 apt-20">
+									<button class="btn btn-primary form-control" type="button" id="signUpBtn">계정 생성</button>
+								</div>
+								<div class="col-12">
+									<p class="mb-0">이미 가입된 계정이 있으신가요? <a href="/loginForm" style="color:red; font-weight:bold;">로그인</a></p>
+								</div>
+							</div>
+			
+	
+						</div>
+					</div>
+				</div>
+	
+			</section>
+	
+		</div>
+	</main><!-- End #main -->
+
+</body>
+
+</html>

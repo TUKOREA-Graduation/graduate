@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="kr.co.thesis.mapper.DetailMapper">
+
+	<select id="selectDetailCount" resultType="int">
+	 	 select count(1) from (
+		 	 select a.product_name,
+			 	    ah.deal_method as detail_type,
+			 	    ah.summary as use_name,
+			 	    ah.deal_price as price,
+			 	    replace(replace(ah.deal_date,'.','-'),char(10),' ') as use_date
+			   from account a, account_history ah
+			  where a.account_no = ah.account_no
+			    and a.user_no = ${userNo}
+			    and substring(replace(ah.deal_date,'.','-'),1,10) = #{dates}
+			    and a.del_yn = 'N'
+			  union all		 
+		     select c.card_product_name as product_name,
+		    	    ch.payment_status as detail_type,
+		    	    ch.franchisee_name as use_name,
+		    	    ch.use_price as price,
+		    	    ch.approval_date as use_date
+		       from card c, card_history ch
+		      where c.card_no = ch.card_no 
+		        and c.user_no = ${userNo}
+		        and substring(ch.approval_date,1,10) = #{dates}
+		        and c.del_yn = 'N'
+	        ) a
+	</select>
+
+	<select id="selectDetailList" resultType="DetailModel">
+	 	 select * from (
+		 	 select a.product_name,
+			 	    ah.deal_method as detail_type,
+			 	    ah.summary as use_name,
+			 	    ah.deal_price as price,
+			 	    replace(replace(ah.deal_date,'.','-'),char(10),' ') as use_date
+			   from account a, account_history ah
+			  where a.account_no = ah.account_no
+			    and a.user_no = ${userNo}
+			    and substring(replace(ah.deal_date,'.','-'),1,10) = #{dates}
+			    and a.del_yn = 'N'
+			  union all		 
+		     select c.card_product_name as product_name,
+		    	    ch.payment_status as detail_type,
+		    	    ch.franchisee_name as use_name,
+		    	    ch.use_price as price,
+		    	    ch.approval_date as use_date
+		       from card c, card_history ch
+		      where c.card_no = ch.card_no 
+		        and c.user_no = ${userNo}
+		        and substring(ch.approval_date,1,10) = #{dates}
+		        and c.del_yn = 'N'
+	        ) a
+	        limit #{start}, #{end}
+	</select>
+	
+</mapper>
